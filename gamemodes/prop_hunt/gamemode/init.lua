@@ -38,6 +38,9 @@ PHE.VOICE_IS_END_ROUND = 0
 -- Update cvar to variables changes every so seconds
 PHE.UPDATE_CVAR_TO_VARIABLE = 0
 
+-- Spectator check
+PHE.SPECTATOR_CHECK = 0
+
 -- Player Join/Leave message
 gameevent.Listen( "player_connect" )
 hook.Add( "player_connect", "AnnouncePLJoin", function( data )
@@ -297,7 +300,7 @@ function GM:PlayerUse(pl, ent)
 	if pl:Team() == TEAM_PROPS && pl:IsOnGround() && !pl:Crouching() && table.HasValue(PHE.USABLE_PROP_ENTITIES, ent:GetClass()) && ent:GetModel() then
 		if table.HasValue(PHE.BANNED_PROP_MODELS, ent:GetModel()) then
 			pl:ChatPrint("That prop has been banned by the server.")
-		elseif ent:GetPhysicsObject():IsValid() && pl.ph_prop:GetModel() != ent:GetModel() then
+		elseif ent:GetPhysicsObject():IsValid() && (pl.ph_prop:GetModel() != ent:GetModel() || pl.ph_prop:GetSkin() != ent:GetSkin()) then
 			local ent_health = math.Clamp(ent:GetPhysicsObject():GetVolume() / 250, 1, 200)
 			local new_health = math.Clamp((pl.ph_prop.health / pl.ph_prop.max_health) * ent_health, 1, 200)
 			local per = pl.ph_prop.health / pl.ph_prop.max_health
@@ -386,7 +389,7 @@ function PlayerSpawn(pl)
 	pl:RemoveProp()
 	pl:RemoveClientProp()
 	pl:SetColor(Color(255, 255, 255, 255))
-	pl:SetRenderMode( RENDERMODE_TRANSALPHA )
+	pl:SetRenderMode(RENDERMODE_TRANSALPHA)
 	pl:UnLock()
 	pl:ResetHull()
 	pl.last_taunt_time = 0
@@ -409,12 +412,17 @@ end
 hook.Add("PlayerSpawn", "PH_PlayerSpawn", PlayerSpawn)
 
 
--- Called when round ends, just to make sure hunters are remain unblinded (usually for short timer/testing)
+-- Called when round ends
 function RoundEnd()
+	-- Unblind the hunters
 	for _, pl in pairs(team.GetPlayers(TEAM_HUNTERS)) do
 		pl:Blind(false)
 		pl:UnLock()
 	end
+	
+	-- Stop autotaunting
+	umsg.Start("AutoTauntRoundEnd", RecipientFilter():AddAllPlayers())
+	umsg.End()
 end
 hook.Add("PH_RoundEnd", "PH.ForceHuntersUnblind", RoundEnd)
 
@@ -479,10 +487,10 @@ end
 -- Called every server tick.
 function GM:Think()
 	-- Prop Rotation
-	for _, pl in pairs(team.GetPlayers(TEAM_PROPS)) do
-		if GetConVar("ph_better_prop_movement"):GetBool() then
-			if pl && pl:IsValid() && pl:Alive() && pl.ph_prop && pl.ph_prop:IsValid() then
-				if pl.ph_prop:GetModel() == "models/player/kleiner.mdl" then
+	if GetConVar("ph_better_prop_movement"):GetBool() then
+		for _, pl in pairs(team.GetPlayers(TEAM_PROPS)) do
+			if pl && pl:IsValid() && pl:Alive() && IsValid(pl.ph_prop) then
+				if string.StartWith(pl.ph_prop:GetModel(), "models/player/") then
 					pl.ph_prop:SetPos(pl:GetPos())
 				else
 					pl.ph_prop:SetPos(pl:GetPos() - Vector(0, 0, pl.ph_prop:OBBMins().z))
@@ -496,7 +504,18 @@ function GM:Think()
 	
 	--MsgAll("ROUND IS NOW: "..GetGlobalInt("RoundNumber").."\n")
 	
+	-- Prop spectating is a bit messy so let us clean it up a bit
+	if PHE.SPECTATOR_CHECK < CurTime() then
+		for _, pl in pairs(team.GetPlayers(TEAM_PROPS)) do
+			if IsValid(pl) && !pl:Alive() && pl:GetObserverMode() == OBS_MODE_IN_EYE then
+				hook.Call("ChangeObserverMode", GAMEMODE, pl, OBS_MODE_ROAMING)
+			end
+		end
+		PHE.SPECTATOR_CHECK = CurTime() + PHE.SPECTATOR_CHECK_ADD
+	end
+	
 	-- Extra check here for changes cvars
+	-- TODO: We should move all this out of the Think function in the future
 	if PHE.UPDATE_CVAR_TO_VARIABLE < CurTime() then
 		-- Update better prop movement variable
 		net.Start("PH_BetterPropMovement")
@@ -648,7 +667,7 @@ end
 
 -- Player pressed a key
 function PlayerPressedKey(pl, key)
-	if GetConVar("ph_better_prop_movement"):GetBool() && pl && pl:IsValid() && pl:Alive() && pl:Team() == TEAM_PROPS && pl.ph_prop && pl.ph_prop:IsValid() then
+	if GetConVar("ph_better_prop_movement"):GetBool() && pl && pl:IsValid() && pl:Alive() && pl:Team() == TEAM_PROPS then
 		if ( key == IN_RELOAD ) then
 			if pl:GetPlayerLockedRot() then
 				pl:SetNWBool("PlayerLockedRotation", false)
@@ -661,3 +680,26 @@ function PlayerPressedKey(pl, key)
 	end
 end
 hook.Add("KeyPress", "PlayerPressedKey", PlayerPressedKey)
+
+
+-- Setup player visibility
+function GM:SetupPlayerVisibility(pl)
+	-- Add players on the same team to the PVS
+	-- Only works when there are 16 or under players
+	if GetConVar("ph_enable_plnames"):GetBool() && GetConVar("ph_fix_pvs"):GetBool() && team.NumPlayers(pl:Team()) <= 16 && pl:Team() != TEAM_SPECTATOR then
+		for _, pl2 in pairs(team.GetPlayers(pl:Team())) do
+			if IsValid(pl2) && pl2:Alive() && !pl2:TestPVS(pl) then
+				AddOriginToPVS(pl2:GetPos())
+				printverbose("[PH:E PVS] Player "..pl:Name().." is adding "..pl2:Name().." to their PVS origin.")
+			end
+		end
+	end
+	
+	-- Do something for spectators
+	if GetConVar("ph_fix_pvs"):GetBool() && pl:Team() == TEAM_SPECTATOR then
+		if IsValid(pl:GetObserverTarget()) then
+			AddOriginToPVS(pl:GetObserverTarget():GetPos())
+			printverbose("[PH:E PVS] Player "..pl:Name().." is adding "..pl:GetObserverTarget():Name().." to their PVS origin.")
+		end
+	end
+end

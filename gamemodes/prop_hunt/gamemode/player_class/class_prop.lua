@@ -22,8 +22,8 @@ end
 
 -- Called when player spawns with this class
 function CLASS:OnSpawn(pl)
-	pl:SetColor( Color(255, 255, 255, 0))
-	pl:SetRenderMode( RENDERMODE_NONE )
+	pl:SetColor(Color(255, 255, 255, 0))
+	pl:SetRenderMode(RENDERMODE_NONE)
 	pl:SetupHands()
 	pl:SetCustomCollisionCheck(true)
 	pl:SetAvoidPlayers(true)
@@ -56,21 +56,22 @@ function CLASS:OnSpawn(pl)
 	
 	if GetConVar("ph_better_prop_movement"):GetBool() then
 		-- Give it a delay
-		timer.Simple(0.1, function()
+		timer.Simple(1, function()
 			if pl:IsValid() then
-				umsg.Start("ClientPropSpawn", pl)
+				umsg.Start("ClientPropSpawn", RecipientFilter():AddPlayer(pl))
 				umsg.End()
 			end
 		end)
 	end
-
-	timer.Simple(0.1, function()
-		if pl:IsValid() then
-			umsg.Start("AutoTauntSpawn")
+	
+	-- Delay start the AutoTaunt stuff
+	timer.Simple(0.5, function()
+		if IsValid(pl) then
+			umsg.Start("AutoTauntSpawn", RecipientFilter():AddPlayer(pl))
 			umsg.End()
 		end
 	end)
-
+	
 	pl.ph_prop.max_health = 100
 end
 

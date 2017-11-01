@@ -196,10 +196,13 @@ function GM:UpdateHUD_Dead( bWaitingToSpawn, InRound )
 	
 	if ( InRound ) then 
 	
+		local TeamIndicator_Name_AddString = "(DEAD) "
+		if ( LocalPlayer():Team() == TEAM_SPECTATOR ) then TeamIndicator_Name_AddString = "" end
+	
 		local TeamIndicator = vgui.Create( "DHudUpdater" );
 			TeamIndicator:SizeToContents()
 			TeamIndicator:SetValueFunction( function() 
-												return "(DEAD) "..team.GetName( LocalPlayer():Team() )
+												return TeamIndicator_Name_AddString..""..team.GetName( LocalPlayer():Team() )
 											end )
 			TeamIndicator:SetColorFunction( function() 
 												return team.GetColor( LocalPlayer():Team() )

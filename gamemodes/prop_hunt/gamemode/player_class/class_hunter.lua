@@ -35,7 +35,7 @@ function CLASS:OnSpawn(pl)
 	if !pl:IsValid() then return end
 
 	pl:SetupHands()
-	pl:SetCustomCollisionCheck(false)
+	pl:SetCustomCollisionCheck(true)
 	pl:SetAvoidPlayers(false)
 	pl:CrosshairEnable()
 
@@ -65,7 +65,7 @@ function CLASS:OnSpawn(pl)
 		timer.Simple(2, lockfunc)
 		timer.Simple(unlock_time, unlockfunc)
 	end
-
+	
 end
 
 

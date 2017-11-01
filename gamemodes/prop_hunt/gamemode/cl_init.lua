@@ -18,6 +18,9 @@ CL_THIRDPERSON_TIMED = 0
 -- Serverside control of plhalos
 CL_PLNAMES_SERVERENABLED = 0
 
+-- Player laser dot
+CL_PLAYER_LASER_DOT = Material("sprites/glow04_noz")
+
 -- Add some network stuff here (Warning: Dirty/Unoptimised code)
 function PH_BetterPropMovement(len)
 	CL_BETTER_PROP_MOVEMENT = net.ReadBool()
@@ -128,13 +131,21 @@ end
 
 -- Draw round timeleft and hunter release timeleft
 function HUDPaint()
-	-- Draw text players.
-	if CL_PLNAMES_SERVERENABLED && GetConVar("ph_cl_pltext"):GetBool() then
+	-- Draw player texts
+	if CL_PLNAMES_SERVERENABLED && GetConVar("ph_cl_pltext"):GetBool() && LocalPlayer():Team() != TEAM_SPECTATOR then
 		for _, pl in pairs(player.GetAll()) do
-			if pl != LocalPlayer() && (pl && pl:IsValid() && pl:Alive() && pl:Team() == LocalPlayer():Team() && !pl:IsLineOfSightClear(LocalPlayer())) then
-				if  (GetConVarNumber("ph_cl_pltext") > 0) then
-					draw.DrawText(pl:Name(), "TargetID", (pl:EyePos() + Vector(0, 0, 32)):ToScreen().x, (pl:EyePos() + Vector(0, 0, 32)):ToScreen().y, team.GetColor(pl:Team()), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+			if pl != LocalPlayer() && (pl && pl:IsValid() && pl:Alive() && pl:Team() == LocalPlayer():Team()) then
+				if pl:Team() == TEAM_HUNTERS && !pl:IsLineOfSightClear(LocalPlayer()) then
+					cam.Start3D()
+						pl:DrawModel()
+					cam.End3D()
+				elseif pl:Team() == TEAM_PROPS && IsValid(pl:GetPlayerPropEntity()) && !pl:IsLineOfSightClear(LocalPlayer()) then
+					cam.Start3D()
+						pl:GetPlayerPropEntity():DrawModel()
+					cam.End3D()
 				end
+				local addvector = Vector(0, 0, math.Clamp(pl:EyePos():Distance(LocalPlayer():EyePos())*0.04, 16, 64))
+				draw.DrawText(pl:Name().." ("..pl:Health().."%)", "TargetIDSmall", (pl:EyePos() + addvector):ToScreen().x, (pl:EyePos() + addvector):ToScreen().y, team.GetColor(pl:Team()), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 			end
 		end
 	end
@@ -171,6 +182,20 @@ end
 hook.Add("HUDPaint", "PH_HUDPaint", HUDPaint)
 
 
+-- After the player has been drawn
+function PH_PostPlayerDraw(pl)
+	-- Draw a line on hunters
+	if GetConVar("ph_cl_spec_hunter_line"):GetBool() && (!LocalPlayer():Alive() || LocalPlayer():Team() == TEAM_SPECTATOR) then
+		if IsValid(pl) && pl:Alive() && pl:Team() == TEAM_HUNTERS then
+			render.DrawLine(pl:GetShootPos(), pl:GetEyeTrace().HitPos, team.GetColor(pl:Team()), true)
+			render.SetMaterial(CL_PLAYER_LASER_DOT)
+			render.DrawSprite(pl:GetEyeTrace().HitPos, 8, 8, team.GetColor(pl:Team()))
+		end
+	end
+end
+hook.Add("PostPlayerDraw", "PH_PostPlayerDraw", PH_PostPlayerDraw)
+
+
 -- Called immediately after starting the gamemode 
 function Initialize()
 	hullz = 80
@@ -181,6 +206,7 @@ function Initialize()
 	CreateClientConVar("ph_cl_pltext", "1", true, false, "Options for Text above players. 0 = Disable. 1 = Enable.")
 	CreateClientConVar("ph_cl_endround_sound", "1", true, false, "Play a sound when round ends? 0 to disable.")
 	CreateClientConVar("ph_cl_autoclose_taunt", "1", true, false, "Auto close the taunt window (When Double Clicking on them)?")
+	CreateClientConVar("ph_cl_spec_hunter_line", "1", true, false, "Draw a line on hunters so we can see their aim in spectator mode.")
 	
 	-- Just like the server constant
 	USABLE_PROP_ENTITIES_CL = {
@@ -259,7 +285,7 @@ usermessage.Hook("ClientPropSpawn", ClientPropSpawn)
 
 -- Remove the client prop model
 function RemoveClientPropUMSG(um)
-	if client_prop_model && client_prop_model:IsValid() then
+	if IsValid(client_prop_model) then
 		client_prop_model:Remove()
 		client_prop_model = nil
 	end
@@ -267,20 +293,19 @@ end
 usermessage.Hook("RemoveClientPropUMSG", RemoveClientPropUMSG)
 
 
--- Called every client frame.
+-- Called every client frame
 function GM:Think()
-	for _, pl in pairs(team.GetPlayers(TEAM_PROPS)) do
-		if CL_BETTER_PROP_MOVEMENT then
-			if LocalPlayer() && LocalPlayer():IsValid() && LocalPlayer():Alive() && LocalPlayer():GetPlayerPropEntity() && LocalPlayer():GetPlayerPropEntity():IsValid() && client_prop_model && client_prop_model:IsValid() then
-				if client_prop_model:GetModel() == "models/player/kleiner.mdl" then
-					client_prop_model:SetPos(LocalPlayer():GetPos())
-				else
-					client_prop_model:SetPos(LocalPlayer():GetPos() - Vector(0, 0, LocalPlayer():GetPlayerPropEntity():OBBMins().z))
-				end
-				client_prop_model:SetModel(LocalPlayer():GetPlayerPropEntity():GetModel())
-				client_prop_model:SetAngles(LocalPlayer():GetPlayerPropEntity():GetAngles())
-				client_prop_model:SetSkin(LocalPlayer():GetPlayerPropEntity():GetSkin())
+	if CL_BETTER_PROP_MOVEMENT then
+		if LocalPlayer():IsValid() && LocalPlayer():Alive() && IsValid(LocalPlayer():GetPlayerPropEntity()) && IsValid(client_prop_model) then
+			local client_prop_model_getmodel = client_prop_model:GetModel() or "models/player/kleiner.mdl"
+			if string.StartWith(client_prop_model_getmodel, "models/player/") then
+				client_prop_model:SetPos(LocalPlayer():GetPos())
+			else
+				client_prop_model:SetPos(LocalPlayer():GetPos() - Vector(0, 0, LocalPlayer():GetPlayerPropEntity():OBBMins().z))
 			end
+			client_prop_model:SetModel(LocalPlayer():GetPlayerPropEntity():GetModel())
+			client_prop_model:SetAngles(LocalPlayer():GetPlayerPropEntity():GetAngles())
+			client_prop_model:SetSkin(LocalPlayer():GetPlayerPropEntity():GetSkin())
 		end
 	end
 	
@@ -298,6 +323,7 @@ function GM:Think()
 		end
 	end
 end
+
 
 -- Draws halos on team members
 function TeamDrawHalos()

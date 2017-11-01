@@ -12,7 +12,7 @@ end)
 
 local function MainFrame()
 	if PHE.CUSTOM_TAUNT_ENABLED == 0 then
-		chat.AddText(Color(220,0,0),"[PH: Enhanced - Taunt] Warning: This server has custom taunts disabled.")
+		chat.AddText(Color(220,0,0),"[PH:E - Taunts] Warning: This server has custom taunts disabled.")
 		return
 	end
 	
@@ -99,7 +99,7 @@ local function MainFrame()
 				timer.Simple(PHE.CUSTOM_TAUNT_DELAY, function() isplayed = false; end)
 				LocalPlayer().last_taunt_time = CurTime()
 			else
-				chat.AddText(Color(220,40,0),"[PH: Enhanced - Taunt] Warning: ",Color(220,220,220),"You have to wait "..PHE.CUSTOM_TAUNT_DELAY.." seconds to play this taunt again!")
+				chat.AddText(Color(220,40,0),"[PH:E - Taunts] Warning: ",Color(220,220,220),"You have to wait "..PHE.CUSTOM_TAUNT_DELAY.." seconds to play this taunt again!")
 			end
 		end
 		
@@ -119,7 +119,7 @@ local function MainFrame()
 			timer.Simple(PHE.CUSTOM_TAUNT_DELAY, function() isplayed = false; end)
 			LocalPlayer().last_taunt_time = CurTime()
 		else
-			chat.AddText(Color(220,40,0),"[PH: Enhanced - Taunt] Warning: ",Color(220,220,220),"You have to wait "..PHE.CUSTOM_TAUNT_DELAY.." seconds to play this taunt again!")
+			chat.AddText(Color(220,40,0),"[PH:E - Taunts] Warning: ",Color(220,220,220),"You have to wait "..PHE.CUSTOM_TAUNT_DELAY.." seconds to play this taunt again!")
 		end
 		
 		if GetConVar("ph_cl_autoclose_taunt"):GetBool() then frame:Close(); end
@@ -135,7 +135,7 @@ if LocalPlayer():Alive() && isforcedclose != true && LocalPlayer():GetObserverMo
 		MainFrame()
 	end	
 else
-	chat.AddText(Color(220,40,0),"[PH: Enhanced - Taunt] Notice: ",Color(220,220,220), "You can only play custom taunts when you\'re alive as prop/hunter!")
+	chat.AddText(Color(220,40,0),"[PH:E Taunts] Notice: ",Color(220,220,220), "You can only play custom taunts when you\'re alive as prop/hunter!")
 end
 end, nil, "Show Prop Hunt taunt list, so you can select and play for self or play as a taunt.")
 

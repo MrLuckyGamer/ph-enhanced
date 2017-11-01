@@ -68,12 +68,19 @@ function printverbose(text)
 	end
 end
 
+-- Autotaunt delay (in seconds)
 if !ConVarExists("ph_autotaunt_delay") then
 	local ph_autotaunt_delay = CreateConVar("ph_autotaunt_delay", "45", { FCVAR_SERVER_CAN_EXECUTE, FCVAR_REPLICATED, FCVAR_ARCHIVE }, "The delay for the auto taunt")
 end
 
+-- Is autotaunt enabled
 if !ConVarExists("ph_autotaunt_enabled") then
 	local ph_autotaunt_enabled = CreateConVar("ph_autotaunt_enabled", "1",{ FCVAR_SERVER_CAN_EXECUTE, FCVAR_REPLICATED, FCVAR_ARCHIVE }, "Should auto taunting be enabled")
+end
+
+-- PVS fix
+if !ConVarExists("ph_fix_pvs") then
+	local ph_fix_pvs = CreateConVar("ph_fix_pvs", "1", { FCVAR_SERVER_CAN_EXECUTE, FCVAR_REPLICATED, FCVAR_ARCHIVE }, "Fix PVS in the gamemode so players stay updated.")
 end
 
 -- Add the shared config file
@@ -135,6 +142,9 @@ GM.TeamBased 				= true
 GM.AutomaticTeamBalance 	= false
 GM.ForceJoinBalancedTeams 	= true
 
+-- Easy goto for seeing if we are PH:E
+GM.PH_IsPHE					= true
+
 -- Called on gamemdoe initialization to create teams
 function GM:CreateTeams()
 	if !GAMEMODE.TeamBased then
@@ -154,7 +164,13 @@ end
 
 -- Check collisions
 function CheckPropCollision(entA, entB)
+	-- Disable prop on prop collisions
 	if !GetConVar("ph_prop_collision"):GetBool() && (entA && entB && ((entA:IsPlayer() && entA:Team() == TEAM_PROPS && entB:IsValid() && entB:GetClass() == "ph_prop") || (entB:IsPlayer() && entB:Team() == TEAM_PROPS && entA:IsValid() && entA:GetClass() == "ph_prop"))) then
+		return false
+	end
+	
+	-- Disable hunter on hunter collisions so we can allow bullets through them
+	if (IsValid(entA) && IsValid(entB) && (entA:IsPlayer() && entA:Team() == TEAM_HUNTERS && entB:IsPlayer() && entB:Team() == TEAM_HUNTERS)) then
 		return false
 	end
 end

@@ -2,7 +2,7 @@ local Ph = {}
 
 -- Warning: May Clutter as fuck... yiff, anything!
 
-Ph.txthelp = [[Welcome to Prop Hunt: Enhanced! [14 H]
+Ph.txthelp = [[Welcome to Prop Hunt: Enhanced! [14 J]
 Shortcuts:
 [F1] : Splash screen menu
 [F2] : Change Team
@@ -14,7 +14,7 @@ Features:
   - [NEW] New mute system.
   - Fixed some minor bugs
   - Fixed ConVars that not being networked properly
-  - GitHub Repo: 14h
+  - GitHub Repo: 14j
   - Enhanced Lucky Ball system.
 Have fun!
 ]]

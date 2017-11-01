@@ -1,6 +1,7 @@
 function GM:HUDDrawTargetID()
 	local tr = util.GetPlayerTrace(LocalPlayer())
 	local trace = util.TraceLine(tr)
+	if CL_PLNAMES_SERVERENABLED && GetConVar("ph_cl_pltext"):GetBool() then return end
 	if (!trace.Hit) then return end
 	if (!trace.HitNonWorld) then return end
 	

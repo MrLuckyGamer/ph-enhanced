@@ -40,6 +40,9 @@ PHE.CUSTOM_TAUNT_DELAY = GetConVarNumber("ph_customtaunts_delay")
 -- Time (in seconds) for cvar variable update to happen (Default: 1)
 PHE.UPDATE_CVAR_TO_VARIABLE_ADD = 1
 
+-- Time (in seconds) for spectator check (Default: 0.1)
+PHE.SPECTATOR_CHECK_ADD = 0.1
+
 -- Enable "Wait for Players" checks?
 PHE.WAIT_FOR_PLY 	= GetConVar("ph_waitforplayers"):GetBool()
 
@@ -171,7 +174,7 @@ PHE.WINNINGSOUNDS = {
 
 -- Add custom taunts, if any. See taunts/prop_taunts.lua or taunts/hunter_taunts.lua for more info.
 local function AddDemTaunt()
-	printverbose("[PH: Enhanced] Finalising custom prop taunts.")
+	printverbose("[PH:E Taunts] Finalising custom prop taunts.")
 	if PHE.PH_TAUNT_CUSTOM.PROP != nil then
 		for k,prop in pairs(PHE.PH_TAUNT_CUSTOM.PROP) do
 			-- We do not need this?
@@ -181,10 +184,10 @@ local function AddDemTaunt()
 			end
 		end
 	else
-		printverbose("[PH: Enhanced] WARNING! Custom taunts table is EMPTY!!")
+		printverbose("[PH:E Taunts] WARNING! Custom taunts table is EMPTY!!")
 	end
 	
-	printverbose("[PH: Enhanced] Finalising custom hunter taunts.")
+	printverbose("[PH:E Taunts] Finalising custom hunter taunts.")
 	if PHE.PH_TAUNT_CUSTOM.HUNTER != nil then
 		for k,hunter in pairs(PHE.PH_TAUNT_CUSTOM.HUNTER) do
 			-- We do not need this?
@@ -194,7 +197,7 @@ local function AddDemTaunt()
 			end
 		end
 	else
-		printverbose("[PH: Enhanced] WARNING! Custom taunts table is EMPTY!!")
+		printverbose("[PH:E Taunts] WARNING! Custom taunts table is EMPTY!!")
 	end
 end
 AddDemTaunt()
@@ -223,7 +226,7 @@ if SERVER then
 			local PROP_PLMODEL_BANS_READ = util.JSONToTable( file.Read( "prop_hunt-enhanced/prop_playermodel_bans.txt", "DATA" ) )
 			for k, v in pairs(PROP_PLMODEL_BANS_READ) do
 				if !table.HasValue(PHE.PROP_PLMODEL_BANS, string.lower(v)) then
-					printverbose("[PH: Enhanced] Adding custom prop model ban: "..string.lower(v))
+					printverbose("[PH:E Models] Adding custom prop model ban: "..string.lower(v))
 					table.insert(PHE.PROP_PLMODEL_BANS, string.lower(v))
 				end
 			end

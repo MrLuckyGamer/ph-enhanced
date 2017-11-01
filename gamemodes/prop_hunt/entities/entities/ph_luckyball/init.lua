@@ -22,6 +22,7 @@ function ENT:Initialize()
 	self.Entity:SetUseType(SIMPLE_USE)
 	
 	self.Uses = 0
+	self.FoundUser = false
 	
 	local phys = self.Entity:GetPhysicsObject() 
 	
@@ -54,13 +55,13 @@ balls.randomtext = {
 	"He once used this \'gamemode\', then never again.",
 	"The blueberry wolfy tried to swim in lava when mining a diamond.",
 	"Uncharted: The Game within The Game.",
-	"Look, Ma! I said look! Top of the world... again!",
+	"Look, ma! I said look! I'm on top of the world... again!",
 	"He always, stays patiently over 400 years to make a changes.",
 	"John Freeman whose Gordon Freeman\'s Brother!",
 	"John Freeman looked underground and found WEPONS!",
 	"When you go to space, there is a hiding crystal inside a \'box\'.",
 	"It\'s so fancy! even people didn\'t find 5 buttons and 2 Doritos!",
-	"WHERE\'S THE BLACKSMITH!!", -- Whoops, these fell here (Remove them if not necessary)
+	"WHERE\'S THE BLACKSMITH!?", -- Whoops, these fell here (Remove them if not necessary)
 	"What a shame.",
 	"Knowing these lucky balls will give you something good fills you with determination.", -- Oh God XD
 	"PILLS HERE!",
@@ -74,6 +75,11 @@ balls.randomtext = {
 	"sudo apt-get moo",
 	"\"Have you mooed today?\"",
 	"Someone could do well on the stage, we just need to find him.",
+	"You can \"Unite\" a \"Tower\" of people if you do it right.",
+	"Klace is a pink husky.", -- lel
+	"Major reference. Minor details.", -- This is 100% a reference! Think!
+	"*Notices* What's this? OwO",
+	"Lucky Ball: I luv u~! <3", -- LOL
 	"So much to do, so little time.", -- That was the rest of those fallen text additions
 	"You don't realise that (nearly) all those were actually easter eggs? :P"
 }
@@ -128,8 +134,10 @@ balls.funclists = {
 		for _, plph in pairs(player.GetAll()) do
 			if plph:SteamID() == "STEAM_0:0:63261691" then
 				pl:ChatPrint("The blueberry wolf is actually => "..plph:Nick())
+				self.FoundUser = true
 			end
 		end
+		if ( !self.FoundUser ) then pl:ChatPrint(table.Random(balls.randomtext)) end
 	end,
 	function(pl)
 		if not pl:HasWeapon("weapon_bugbait") then
@@ -150,13 +158,15 @@ balls.funclists = {
 	 end,
 	 function(pl)  -- This is a fun little reference to staging
 		 for _, plph in pairs(player.GetAll()) do
-			 if plph:SteamID() == "STEAM_0:0:49332102" && plph:Team() == TEAM_HUNTERS then
+			 if plph:SteamID() == "STEAM_0:0:49332102" && plph:Alive() && plph:Team() == TEAM_HUNTERS then
 				 pl:ChatPrint("You put "..plph:Name().." on the stage.")
 				 plph:SendLua("CL_THIRDPERSON_TIMED = CurTime() + 10")
 				 plph:SendLua("RunConsoleCommand(\"act\", \"dance\")")
 				 plph:EmitSound("taunts/props/32.mp3", 100)
+				 self.FoundUser = true
 			 end
 		 end
+		 if ( !self.FoundUser ) then pl:ChatPrint(table.Random(balls.randomtext)) end
 	 end,
 	function(pl)
 		local suicidebomb = ents.Create("combine_mine")
