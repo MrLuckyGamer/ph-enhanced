@@ -16,6 +16,12 @@ function ENT:Initialize()
 end 
 
 
+-- Transmit update
+function ENT:UpdateTransmitState()
+	return TRANSMIT_ALWAYS
+end
+
+
 -- Called when we take damge
 function ENT:OnTakeDamage(dmg)
 	local pl = self:GetOwner()

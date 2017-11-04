@@ -88,7 +88,7 @@ function GM:CalcView(pl, origin, angles, fov)
 			
 			trace.start = origin + Vector(0, 0, hullz - 60)
 			trace.endpos = origin + Vector(0, 0, hullz - 60) + (angles:Forward() * -80)
-			trace.filter = client_prop_model && ents.FindByClass("ph_prop")
+			trace.filter = ents.FindByClass("ph_prop")
 			local tr = util.TraceLine(trace)
 			
 			view.origin = tr.HitPos
@@ -276,36 +276,15 @@ end
 usermessage.Hook("SetHull", SetHull)
 
 
--- Player has a client-side prop model
-function ClientPropSpawn(um)
-	client_prop_model = ents.CreateClientProp("models/player/kleiner.mdl")
-end
-usermessage.Hook("ClientPropSpawn", ClientPropSpawn)
-
-
--- Remove the client prop model
-function RemoveClientPropUMSG(um)
-	if IsValid(client_prop_model) then
-		client_prop_model:Remove()
-		client_prop_model = nil
-	end
-end
-usermessage.Hook("RemoveClientPropUMSG", RemoveClientPropUMSG)
-
-
 -- Called every client frame
 function GM:Think()
 	if CL_BETTER_PROP_MOVEMENT then
-		if LocalPlayer():IsValid() && LocalPlayer():Alive() && IsValid(LocalPlayer():GetPlayerPropEntity()) && IsValid(client_prop_model) then
-			local client_prop_model_getmodel = client_prop_model:GetModel() or "models/player/kleiner.mdl"
-			if string.StartWith(client_prop_model_getmodel, "models/player/") then
-				client_prop_model:SetPos(LocalPlayer():GetPos())
+		if IsValid(LocalPlayer()) && LocalPlayer():Alive() && IsValid(LocalPlayer():GetPlayerPropEntity()) then
+			if LocalPlayer():GetPlayerPropEntity():GetModel() == player_manager.TranslatePlayerModel(GetConVar("cl_playermodel"):GetString()) then
+				LocalPlayer():GetPlayerPropEntity():SetRenderOrigin(LocalPlayer():GetPos())
 			else
-				client_prop_model:SetPos(LocalPlayer():GetPos() - Vector(0, 0, LocalPlayer():GetPlayerPropEntity():OBBMins().z))
+				LocalPlayer():GetPlayerPropEntity():SetRenderOrigin(LocalPlayer():GetPos() - Vector(0, 0, LocalPlayer():GetPlayerPropEntity():OBBMins().z))
 			end
-			client_prop_model:SetModel(LocalPlayer():GetPlayerPropEntity():GetModel())
-			client_prop_model:SetAngles(LocalPlayer():GetPlayerPropEntity():GetAngles())
-			client_prop_model:SetSkin(LocalPlayer():GetPlayerPropEntity():GetSkin())
 		end
 	end
 	
@@ -340,7 +319,7 @@ function TeamDrawHalos()
 				trace.start = LocalPlayer():EyePos() + Vector(0, 0, hullz - 60)
 				trace.endpos = LocalPlayer():EyePos() + Vector(0, 0, hullz - 60) + LocalPlayer():EyeAngles():Forward() * 100
 			end
-			trace.filter = client_prop_model && ents.FindByClass("ph_prop")
+			trace.filter = ents.FindByClass("ph_prop")
 			
 			local trace2 = util.TraceLine(trace) 
 			if trace2.Entity && trace2.Entity:IsValid() && table.HasValue(USABLE_PROP_ENTITIES_CL, trace2.Entity:GetClass()) then

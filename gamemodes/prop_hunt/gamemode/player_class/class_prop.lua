@@ -54,16 +54,6 @@ function CLASS:OnSpawn(pl)
 	pl.ph_prop:SetOwner(pl)
 	pl:SetNWEntity("PlayerPropEntity", pl.ph_prop)
 	
-	if GetConVar("ph_better_prop_movement"):GetBool() then
-		-- Give it a delay
-		timer.Simple(1, function()
-			if pl:IsValid() then
-				umsg.Start("ClientPropSpawn", RecipientFilter():AddPlayer(pl))
-				umsg.End()
-			end
-		end)
-	end
-	
 	-- Delay start the AutoTaunt stuff
 	timer.Simple(0.5, function()
 		if IsValid(pl) then
@@ -85,7 +75,6 @@ end
 -- Called when a player dies with this class
 function CLASS:OnDeath(pl, attacker, dmginfo)
 	pl:RemoveProp()
-	pl:RemoveClientProp()
 end
 
 

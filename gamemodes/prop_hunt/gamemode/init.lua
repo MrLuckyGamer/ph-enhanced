@@ -387,7 +387,6 @@ function PlayerSpawn(pl)
 	pl:SetNWEntity("PlayerKilledByPlayerEntity", nil)
 	pl:Blind(false)
 	pl:RemoveProp()
-	pl:RemoveClientProp()
 	pl:SetColor(Color(255, 255, 255, 255))
 	pl:SetRenderMode(RENDERMODE_TRANSALPHA)
 	pl:UnLock()
@@ -401,6 +400,7 @@ function PlayerSpawn(pl)
 	umsg.End()
 	
 	pl:SetCollisionGroup(COLLISION_GROUP_PASSABLE_DOOR)
+	pl:CollisionRulesChanged()
 	
 	-- Do something with jump power
 	if pl:Team() == TEAM_HUNTERS then
@@ -489,8 +489,8 @@ function GM:Think()
 	-- Prop Rotation
 	if GetConVar("ph_better_prop_movement"):GetBool() then
 		for _, pl in pairs(team.GetPlayers(TEAM_PROPS)) do
-			if pl && pl:IsValid() && pl:Alive() && IsValid(pl.ph_prop) then
-				if string.StartWith(pl.ph_prop:GetModel(), "models/player/") then
+			if IsValid(pl) && pl:Alive() && IsValid(pl.ph_prop) then
+				if pl.ph_prop:GetModel() == player_manager.TranslatePlayerModel(pl:GetInfo("cl_playermodel")) then
 					pl.ph_prop:SetPos(pl:GetPos())
 				else
 					pl.ph_prop:SetPos(pl:GetPos() - Vector(0, 0, pl.ph_prop:OBBMins().z))
