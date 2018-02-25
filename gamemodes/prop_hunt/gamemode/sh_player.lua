@@ -43,9 +43,18 @@ function meta:RemoveProp()
 	end
 end
 
-function meta:RemoveClientProp()
-	if CLIENT || !self:IsValid() then return end
+
+-- Returns ping for the scoreboard
+function meta:ScoreboardPing()
+
+	-- If this is not a dedicated server and player is the host
+	if self:GetNWBool("ListenServerHost") then
 	
-	umsg.Start("RemoveClientPropUMSG", self)
-	umsg.End()
+		return "SV"
+	
+	end
+
+	-- Return normal ping value otherwise
+	return self:Ping()
+
 end

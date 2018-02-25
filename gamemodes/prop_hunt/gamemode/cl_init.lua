@@ -278,16 +278,7 @@ usermessage.Hook("SetHull", SetHull)
 
 -- Called every client frame
 function GM:Think()
-	if CL_BETTER_PROP_MOVEMENT then
-		if IsValid(LocalPlayer()) && LocalPlayer():Alive() && IsValid(LocalPlayer():GetPlayerPropEntity()) then
-			if LocalPlayer():GetPlayerPropEntity():GetModel() == player_manager.TranslatePlayerModel(GetConVar("cl_playermodel"):GetString()) then
-				LocalPlayer():GetPlayerPropEntity():SetRenderOrigin(LocalPlayer():GetPos())
-			else
-				LocalPlayer():GetPlayerPropEntity():SetRenderOrigin(LocalPlayer():GetPos() - Vector(0, 0, LocalPlayer():GetPlayerPropEntity():OBBMins().z))
-			end
-		end
-	end
-	
+	-- Prop light
 	if client_prop_light && LocalPlayer() && LocalPlayer():IsValid() && LocalPlayer():Alive() && LocalPlayer():Team() == TEAM_PROPS then
 		local prop_light = DynamicLight(LocalPlayer():EntIndex())
 		if prop_light then

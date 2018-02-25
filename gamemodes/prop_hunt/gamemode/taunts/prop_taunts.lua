@@ -30,27 +30,27 @@ PHE.PH_TAUNT_CUSTOM.PROP = {
 -- Create custom taunt directory if needed and find custom taunts if it all exists
 -- Directory Existant
 if !file.Exists("sound/taunts/props_custom/", "GAME") then
-	printverbose("[PH:E Taunts] Custom prop taunts cannot be detected because one or more directories are missing!!")
-	printverbose("[PH:E Taunts] Make sure this directory exists: sound/taunts/props_custom/ !")
+	printVerbose("[PH:E Taunts] Custom prop taunts cannot be detected because one or more directories are missing!!")
+	printVerbose("[PH:E Taunts] Make sure this directory exists: sound/taunts/props_custom/ !")
 end
 
 -- Let us go find them shall we
 if file.Exists("sound/taunts/props_custom/", "GAME") then
 	-- Add WAV
 	PHE.PH_TAUNT_FILE_LIST.PROP = file.Find("sound/taunts/props_custom/*.wav", "GAME")
-	printverbose("[PH:E Taunts] Looking for custom WAV taunts.")
-	if #PHE.PH_TAUNT_FILE_LIST.PROP < 1 then printverbose("[PH:E Taunts] Custom Taunt: There is nothing here??") end
+	printVerbose("[PH:E Taunts] Looking for custom WAV taunts.")
+	if #PHE.PH_TAUNT_FILE_LIST.PROP < 1 then printVerbose("[PH:E Taunts] Custom Taunt: There is nothing here??") end
 	for k, v in pairs(PHE.PH_TAUNT_FILE_LIST.PROP) do
-		printverbose("[PH:E Taunts] Detected & adding custom prop taunt: sound/taunts/props_custom/"..v.." .")
+		printVerbose("[PH:E Taunts] Detected & adding custom prop taunt: sound/taunts/props_custom/"..v.." .")
 		table.insert(PHE.PH_TAUNT_CUSTOM.PROP, "taunts/props_custom/"..v)
 	end
 	
 	-- Add MP3
 	PHE.PH_TAUNT_FILE_LIST.PROP = file.Find("sound/taunts/props_custom/*.mp3", "GAME")
-	printverbose("[PH:E Taunts] Looking for custom MP3 taunts.")
-	if #PHE.PH_TAUNT_FILE_LIST.PROP < 1 then printverbose("[PH:E Taunts] Custom Taunt: There is nothing here??") end
+	printVerbose("[PH:E Taunts] Looking for custom MP3 taunts.")
+	if #PHE.PH_TAUNT_FILE_LIST.PROP < 1 then printVerbose("[PH:E Taunts] Custom Taunt: There is nothing here??") end
 	for k, v in pairs(PHE.PH_TAUNT_FILE_LIST.PROP) do
-		printverbose("[PH:E Taunts] Detected & adding custom prop taunt: sound/taunts/props_custom/"..v.." .")
+		printVerbose("[PH:E Taunts] Detected & adding custom prop taunt: sound/taunts/props_custom/"..v.." .")
 		table.insert(PHE.PH_TAUNT_CUSTOM.PROP, "taunts/props_custom/"..v)
 	end
 end

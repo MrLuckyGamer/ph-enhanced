@@ -214,9 +214,9 @@ function EntityTakeDamage(ent, dmginfo)
 	-- Code from: https://facepunch.com/showthread.php?t=1500179 , Special thanks from AlcoholicoDrogadicto(http://steamcommunity.com/profiles/76561198082241865/) for suggesting this.
     if GAMEMODE:InRound() && ent && ent:IsPlayer() && ent:Alive() && ent:Team() == TEAM_PROPS && ent.ph_prop then
 		-- Prevent Prop 'Friendly Fire'
-		if ( dmginfo:GetAttacker():IsPlayer() && dmginfo:GetAttacker():Team() == ent:Team() ) then printverbose("DMGINFO::ATTACKED!!-> "..tostring(dmginfo:GetAttacker())..", DMGTYPE: "..dmginfo:GetDamageType()); return end
+		if ( dmginfo:GetAttacker():IsPlayer() && dmginfo:GetAttacker():Team() == ent:Team() ) then printVerbose("DMGINFO::ATTACKED!!-> "..tostring(dmginfo:GetAttacker())..", DMGTYPE: "..dmginfo:GetDamageType()); return end
 		--Debug purpose.
-		printverbose("!! " .. ent:Name() .. "'s PLAYER entity appears to have taken damage, we can redirect it to the prop! (Model is: " .. ent.ph_prop:GetModel() .. ")")
+		printVerbose("!! " .. ent:Name() .. "'s PLAYER entity appears to have taken damage, we can redirect it to the prop! (Model is: " .. ent.ph_prop:GetModel() .. ")")
         ent.ph_prop:TakeDamageInfo(dmginfo)
         return
     end
@@ -408,6 +408,11 @@ function PlayerSpawn(pl)
 	elseif pl:Team() == TEAM_PROPS then
 		pl:SetJumpPower(160 * 1.4)
 	end
+
+	-- Listen server host
+	if !game.IsDedicated() then
+		pl:SetNWBool("ListenServerHost", pl:IsListenServerHost())
+	end
 end
 hook.Add("PlayerSpawn", "PH_PlayerSpawn", PlayerSpawn)
 
@@ -486,22 +491,6 @@ end
 
 -- Called every server tick.
 function GM:Think()
-	-- Prop Rotation
-	if GetConVar("ph_better_prop_movement"):GetBool() then
-		for _, pl in pairs(team.GetPlayers(TEAM_PROPS)) do
-			if IsValid(pl) && pl:Alive() && IsValid(pl.ph_prop) then
-				if pl.ph_prop:GetModel() == player_manager.TranslatePlayerModel(pl:GetInfo("cl_playermodel")) then
-					pl.ph_prop:SetPos(pl:GetPos())
-				else
-					pl.ph_prop:SetPos(pl:GetPos() - Vector(0, 0, pl.ph_prop:OBBMins().z))
-				end
-				if !(pl:GetPlayerLockedRot()) then
-					pl.ph_prop:SetAngles(pl:GetAngles())
-				end
-			end
-		end
-	end
-	
 	--MsgAll("ROUND IS NOW: "..GetGlobalInt("RoundNumber").."\n")
 	
 	-- Prop spectating is a bit messy so let us clean it up a bit
@@ -680,26 +669,3 @@ function PlayerPressedKey(pl, key)
 	end
 end
 hook.Add("KeyPress", "PlayerPressedKey", PlayerPressedKey)
-
-
--- Setup player visibility
-function GM:SetupPlayerVisibility(pl)
-	-- Add players on the same team to the PVS
-	-- Only works when there are 16 or under players
-	if GetConVar("ph_enable_plnames"):GetBool() && GetConVar("ph_fix_pvs"):GetBool() && team.NumPlayers(pl:Team()) <= 16 && pl:Team() != TEAM_SPECTATOR then
-		for _, pl2 in pairs(team.GetPlayers(pl:Team())) do
-			if IsValid(pl2) && pl2:Alive() && !pl2:TestPVS(pl) then
-				AddOriginToPVS(pl2:GetPos())
-				printverbose("[PH:E PVS] Player "..pl:Name().." is adding "..pl2:Name().." to their PVS origin.")
-			end
-		end
-	end
-	
-	-- Do something for spectators
-	if GetConVar("ph_fix_pvs"):GetBool() && pl:Team() == TEAM_SPECTATOR then
-		if IsValid(pl:GetObserverTarget()) then
-			AddOriginToPVS(pl:GetObserverTarget():GetPos())
-			printverbose("[PH:E PVS] Player "..pl:Name().." is adding "..pl:GetObserverTarget():Name().." to their PVS origin.")
-		end
-	end
-end

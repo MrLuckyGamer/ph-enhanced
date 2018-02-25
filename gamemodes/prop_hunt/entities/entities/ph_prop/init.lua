@@ -1,4 +1,3 @@
-
 -- Send required files to client
 AddCSLuaFile("cl_init.lua")
 AddCSLuaFile("shared.lua")
@@ -13,6 +12,7 @@ function ENT:Initialize()
 	self:SetModel("models/player/kleiner.mdl")
 	self.health = 100
 	self.Entity:SetMoveType(MOVETYPE_NONE)
+	self.Entity:SetLagCompensated(true)
 end 
 
 
@@ -29,7 +29,7 @@ function ENT:OnTakeDamage(dmg)
 	local inflictor = dmg:GetInflictor()
 
 	-- Health
-	if GAMEMODE:InRound() && pl && pl:IsValid() && pl:Alive() && pl:IsPlayer() && attacker:IsPlayer() && dmg:GetDamage() > 0 then
+	if GAMEMODE:InRound() && IsValid(pl) && pl:Alive() && pl:IsPlayer() && attacker:IsPlayer() && dmg:GetDamage() > 0 then
 		self.health = self.health - dmg:GetDamage()
 		pl:SetHealth(self.health)
 		
@@ -89,7 +89,6 @@ function ENT:OnTakeDamage(dmg)
 			hook.Call("PH_OnPropKilled", nil, pl, attacker)
 			
 			pl:RemoveProp()
-			pl:RemoveClientProp()
 		end
 	end
 end

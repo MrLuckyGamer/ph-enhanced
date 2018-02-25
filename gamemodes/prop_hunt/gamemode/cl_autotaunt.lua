@@ -81,7 +81,7 @@ local function CheckAutoTaunt()
 	if !ply:Alive() || ply:Team() != TEAM_PROPS then
 		started = false
 		RemoveTimer()
-		printverbose("[PH:E AutoTaunt] Blocked!")
+		printVerbose("[PH:E AutoTaunt] Blocked!")
 		return
 	end
 
