@@ -1,14 +1,21 @@
-# Wolvin's Prop Hunt: Enhanced 14j-Staging
+# Wolvin's Prop Hunt: Enhanced 14j
 
 Current version: 14, Revision: j, release type: Staging
-
-### Upcoming v15 Notice
-- We're currently investigating and try to fix some internal issues related to PH:E. Any upcoming/new issues and problems will soon be included and patched after v.15 update has been released.
-- Be sure to check our issues lists. If there's some any serious problem that occurs both in Server and Client side of PH:E, please report them by creating new issues in [Issue Tracker Here.](https://github.com/Vinzuerio/ph-enhanced/issues)
 
 ### v14j-Staging Notice
 - This version of Prop Hunt: Enhanced might include new features, adjustments and/or fixes. This staging version is originally provided by D4UNKN0WNM4N2010 and you're free to look at any changes made.
 - Please be aware that under staging these features might not make it into the next beta release and will remain here instead. Changes are reviewed and evaluated before entering beta releases.
+
+### Issues that currently we're Investigating
+- Refer to issues #52
+- Refer to any issues labeled with "Enhanced"
+- Refer to any issues labeled with "bug" to prevent any unwanted errors happening in-game
+- Integrate Client-Side Prop movement (prevent 'Laggy' movement for props)
+- Revoke "Think" function for Prop's :SetPos()
+
+### Upcoming v15 Notice
+- We're currently investigating and try to fix some internal issues related to PH:E. Any upcoming/new issues and problems will soon be included and patched after v.15 update has been released.
+- Be sure to check our issues lists. If there's some any serious problem that occurs both in Server and Client side of PH:E, please report them by creating new issues in [Issue Tracker Here.](https://github.com/Vinzuerio/ph-enhanced/issues)
 
 ### Description
 Prop Hunt: Enhanced is an alternate, newer and enhanced version of the Gamemode from original prop hunt which was broken from last Garry's Mod's March 2015 update and decided to make as fixed and newer. This enhanced version is also pretty similar to the classic one, however several things like new codes, files and new features were added in the gamemode to make it
@@ -23,9 +30,7 @@ You can join via IP here:
 
 **ASIA: 128.199.238.151:27015**
 
-**UK: 138.68.154.108:27015**
-
-**USA: Offline**
+Server that uses "Prop Hunt: Enhanced Gamemode" will provide you the latest enhanced prop hunt gamemode from Staging Release or Stable Release (if any)
 
 If you experiences any client side issues or any client side lua errors, please report it by typing !issue in chat.
 
