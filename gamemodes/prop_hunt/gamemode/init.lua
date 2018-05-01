@@ -380,6 +380,11 @@ function PlayerDisconnected(pl)
 end
 hook.Add("PlayerDisconnected", "PH_PlayerDisconnected", PlayerDisconnected)
 
+-- Spray Control
+hook.Add("PlayerSpray", "PH.GeneralSprayFunc", function(ply)
+	if (!ply:Alive() || ply:Team() == TEAM_SPECTATOR) then return true end
+end)
+
 -- Called when the players spawns
 function PlayerSpawn(pl)
 	pl:SetNWBool("PlayerLockedRotation", false)
